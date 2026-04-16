@@ -12,7 +12,7 @@ const app = express();
 // Create sqlite database to store sessions 
 const sessDb = new Database('session.db');
 
-// create on object for creating the session store
+// create an object for creating the session store
 // SqliteStore is similar in concept to a class
 const SqliteStore = betterSqlite3Session(expressSession, sessDb);
 
@@ -69,7 +69,6 @@ app.use((req, res, next) => {
 
 
 app.use('/buy', (req, res, next) => {
-    console.log('buy middleware');
     if(req.session.username) {
         next();
     } else {
