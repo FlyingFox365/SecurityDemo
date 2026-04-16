@@ -35,6 +35,10 @@ app.use(express.urlencoded({extended: false}));
 
 app.set('view engine' , 'ejs');
 
+// TODO signup with bcrypt
+app.post('/signup', (req, res) => {
+    res.render('main', { msg: "Not implemented yet"} );
+});
 
 app.post('/login', (req, res) => {
     let msg = "";
