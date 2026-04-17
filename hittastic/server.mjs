@@ -44,8 +44,13 @@ app.post('/login', (req, res) => {
     let msg = "";
     try {
         // TODO 1. replace with secure version using placeholders
-        const stmt = db.prepare(`SELECT * FROM ht_users WHERE password='${req.body.password}' AND username='${req.body.username}'`);
-        const results = stmt.all();
+        const stmt = db.prepare(`
+            SELECT *
+            FROM ht_users 
+            WHERE password = ?
+            AND username = ?
+        `);
+        const results = stmt.all(req.body.password, req.body.username);
 
         if(results.length > 0) {
             req.session.username = results[0].username;
