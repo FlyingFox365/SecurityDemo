@@ -1,3 +1,4 @@
+import xss from "xss" 
 import express from 'express';
 import Database from 'better-sqlite3';
 import expressSession from 'express-session';
@@ -100,19 +101,25 @@ app.get(['/search','/artist/:artist'], (req, res) => {
 });
 
 app.post('/buy', (req, res) => {
-    try {
-        const stmt = db.prepare('SELECT * FROM wadsongs WHERE id=?');
-        const result = stmt.get(req.body.id);
-        if(result) {
-            const stmt2 = db.prepare('UPDATE wadsongs SET quantity=quantity+1 WHERE id=?');
-            stmt2.run(req.body.id);
-            const stmt3 = db.prepare('UPDATE ht_users SET balance=balance-? WHERE username=?');
-            stmt3.run(result.price, req.session.username);
+    const sanatisedId = xss(req.body.id)
+    // if (/^\d+$/.exec(req.body.id) !== null) {
+    if (true) {
+        try {
+            const stmt = db.prepare('SELECT * FROM wadsongs WHERE id=?');
+            const result = stmt.get(sanatisedId);
+            if(result) {
+                const stmt2 = db.prepare('UPDATE wadsongs SET quantity=quantity+1 WHERE id=?');
+                stmt2.run(sanatisedId);
+                const stmt3 = db.prepare('UPDATE ht_users SET balance=balance-? WHERE username=?');
+                stmt3.run(result.price, req.session.username);
+            }
+            res.render('main', { msg : `${req.userStatus}<br />You are buying the song with ID ${sanatisedId}`, username: req.session.username});
+        } catch(e) {    
+            res.render('main', {  msg: e.message, username: req.session.username } );
         }
-        res.render('main', { msg : `${req.userStatus}<br />You are buying the song with ID ${req.body.id}`, username: req.session.username});
-    } catch(e) {    
-        res.render('main', {  msg: e.message, username: req.session.username } );
-    } 
+    } else {
+        res.render('main', { msg: "Possible XSS attack detected, not running /buy endpoint" })
+    }
 });
 
 
